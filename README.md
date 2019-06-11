@@ -7,4 +7,6 @@ Here's my actual productivity graphs from the past few months:
 
 ![Productivity graph](https://i.imgur.com/XLTSLCe.png)
 
+(This was finished in mid-April)
+
 ![Productivity graph](https://i.imgur.com/IYdnov2.png)
