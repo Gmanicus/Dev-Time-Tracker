@@ -15,6 +15,12 @@ from PIL import Image, ImageDraw, ImageFont
 import calendar
 import atexit
 
+process_names = [
+    "Code.exe",
+    "Unity.exe",
+    "Brackets.exe",
+]
+
 months = [
     "January",
     "February",
@@ -87,14 +93,13 @@ def main():
     global year_m_day
 
     while True:
-
-        online = get_window("Code.exe")
-
-        if not online:
-            online = get_window("Unity.exe")
-
-        if not online:
-            online = get_window("Brackets.exe")
+    
+        for name in process_names:
+            online = get_window(name)
+            if online:
+                break
+        else:
+            online = None
 
         time.sleep(tick_time - ((time.time() - starttime) % tick_time))
 
