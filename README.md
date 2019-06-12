@@ -1,6 +1,8 @@
 # Dev-Time-Tracker
 A time tracker &amp; grapher for us devs. It automatically logs the time we spend deving, and encourages us to stop watching YouTube by drawing graphs of our unproductivity. :D
 
+It uses the PIL image generation library, so I believe it only works on Windows. I'll look into getting this working on other OSs soon.
+
 It, by default, detects when "Unity.exe", "Code.exe", or "Brackets.exe" are run. I plan on updating to allow the user to type in new processes, such as "Unreal.exe" or "Gamemaker.exe", without having to edit the python file. For now, it will remain as it is.
 
 The seconds for each day of every month and year are also saved in the "this_graph.txt" file that gets created when it is run.
