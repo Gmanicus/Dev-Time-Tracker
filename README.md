@@ -22,6 +22,6 @@ I went to Windows Scheduler and had it run this with a 60s delay after any logon
 
 Here's my actual productivity graphs from the past few months (This was finished in mid-April):
 
-![Productivity graph](https://i.imgur.com/XLTSLCe.png)
+![Productivity graph](https://imgur.com/Zi0lY0V)
 
-![Productivity graph](https://i.imgur.com/IYdnov2.png)
+![Productivity graph](https://imgur.com/N7S2zgI)
