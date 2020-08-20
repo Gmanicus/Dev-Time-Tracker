@@ -20,7 +20,7 @@ The seconds for each day of every month and year saved in the "time_table.json" 
 ## Conclusion
 I went to Windows Scheduler and had it run this with a 60s delay after any logon. Works splendidly!
 
-Here's my actual productivity graphs from the past few months (This was finished in mid-April):
+Here's my actual productivity graphs from the past few months (As of the last major update):
 
 ![Productivity graph](https://i.imgur.com/Zi0lY0V.png)
 
