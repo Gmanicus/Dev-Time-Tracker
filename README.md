@@ -3,6 +3,17 @@ A time tracker &amp; grapher for us devs. It automatically logs the time we spen
 
 # Updates:
 
+November 27th, 2020 - Major Updates include:
+- Added numerous more colors to chart individual items. Colors are assigned in relation to the amount of time spent on an individual label.
+- Search the task list was causing a performance bottleneck, due to the fact that it was being requested every iteration. The data is now stored, referred to, and refreshed every 30s.
+- It should now be drawing the chart when the program is closed. This is a "nice to have" thing, and just keeps the chart up to date with what is in the file (theoretically, as it's been a while since I tested whether this was working as intended).
+- The program now checks for the __main__ namespace. This solved some issues with commandline functionality.
+- You can now run TimeTracker.py with one optional argument. If ran with `TimeTracker.py draw`, it will draw the chart and end the program.
+- Large improvement in window checks. Previously, subwindows would show a blank focus and be filed under "Other". It will now get the name of the parent window and be filed under the correct project properly.
+- Any time spent on a label without a color available will be overflowed into the "Other" segment. I seem to remember it not doing this previously, but I can't confirm as I didn't keep dev notes on this project.
+- The graph now shows hours on the legend, and has it offset so that it doesn't cover the pie chart. These are sorted most-least top-bottom.
+
+
 April 4th, 2020 - Major Updates include:
 - Overhaul to use JSON instead of my personal parsing and saving method, which was tremendously inferior and harder to work with.
 - Added Bar Segments, which allow you to see all of the *individual* things you worked on throughout the day. These are color coded and match up with the pie chart
@@ -22,6 +33,6 @@ I went to Windows Scheduler and had it run this with a 60s delay after any logon
 
 Here's my actual productivity graphs from the past few months (As of the last major update):
 
-![Productivity graph](https://i.imgur.com/Zi0lY0V.png)
+![Productivity graph](https://i.imgur.com/SelXfVi.png)
 
-![Productivity graph](https://i.imgur.com/N7S2zgI.png)
+![Productivity graph](https://i.imgur.com/uq1mSvK.png)
