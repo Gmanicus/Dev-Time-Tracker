@@ -1,7 +1,6 @@
 # Dev Time Tracker
 # By: Grant Scritsmier @ Geek Overdrive Studio
 
-
 import subprocess
 import re
 import os
@@ -13,7 +12,7 @@ import random
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 import matplotlib.pyplot as plotter
-from win32gui import GetWindowText, GetForegroundWindow
+import win32gui
 from parse import *
 import calendar
 import atexit
@@ -21,6 +20,7 @@ import mouse
 import keyboard
 import json
 import operator
+import traceback
 
 months = [
     "January",
@@ -38,9 +38,11 @@ months = [
 ]
 
 time_table = {}
+task_table = []
 
 today_time = 0
 update_time = 0
+last_task_check = 0
 tick_time = 2
 
 base_size = {
@@ -145,9 +147,11 @@ def test():
     # print(return_data.fixed[0])
     # print(test_data)
 
-    draw_graph()
+    #draw_graph()
 
-    #print(get_focus())
+    time.sleep(1)
+
+    get_focus()
 
     # while True:
 
@@ -192,31 +196,49 @@ def init():
 
     load_backup()
 
-
 def main():
-
-    init()
 
     global time_now
     global today_time
     global update_time
     global year_m_day
+    global show_status
 
     prev_time = 0
 
     keyboard.hook(check_activity)
 
+    if (not show_status):
+        time1 = 0
+        time2 = 0
+        time3 = 0
+
     while True:
+        if (not show_status):
+            time1 = time.time()
 
         if (check_activity()):
 
-            online = get_window("Code.exe")
+            if (not show_status):
+                time3 = time.time()
 
+            online = get_window("Code.exe")
             if not online:
                 online = get_window("Unity.exe")
-
             if not online:
                 online = get_window("Brackets.exe")
+            if not online:
+                online = get_window("PaintDotNet.exe")
+            if not online:
+                online = get_window("synfigstudio.exe")
+            if not online:
+                online = get_window("brave.exe")
+                if ("Browsing" in get_focus() or "Other" in get_focus()):
+                    online = False
+            
+            if (not show_status):
+                time2 = time.time()
+                print("get_window took: {}".format(time2 - time3))
 
             # locks it to the system time to make sure the function repeats exactly every tick_time no matter how long the function after it takes
             time.sleep(tick_time - ((time.time() - starttime) % tick_time))
@@ -234,15 +256,16 @@ def main():
                     "day": datetime.now().day
                 }
 
+                focus = get_focus()
+
                 if (show_status):
-                    print("Tick: " + str(today_time) + " | Next Graph in: " + str(120 - (today_time % 120)) + " ticks | Activity: " + str(activity) + "             ", end="\r")
-                #cleared = False
+                    os.system("cls")
+                    #print("Tick: " + str(today_time) + " | Next Graph in: " + str(120 - (today_time % 120)) + " ticks | Time since last activity: " + str(activity))
+                    print("Current Activity: {0}\nTime Logged: {1}s\nNext Graph() in {2}s\nInactivity Countdown: {3}s".format(focus, today_time, 120 - (today_time % 120), activity))
 
                 year_m_day = str(time_now["year"]) + "_" + str(time_now["month"]) + "_" + str(time_now["day"])
 
                 today = time_now["day"]
-
-                focus = get_focus()
 
                 if last_day < today:
                     add_time(last_day, focus)
@@ -272,6 +295,10 @@ def main():
                 update_time = 0
 
                 prev_time = today_time
+
+                if (not show_status):
+                    time2 = time.time()
+                    print(time2 - time1)
 
 
 
@@ -515,7 +542,10 @@ def draw_piechart(im):
         else:
             something_to_chart = True
 
-        files.append(k)
+        if (round(v/3600, 1) > 10):
+            files.append("[{} hrs] {}".format(round(v/3600, 1), k))
+        else:
+            files.append("[  {} hrs] {}".format(round(v/3600, 1), k))
         hours.append(v)
 
         if (k != "Other"):
@@ -540,9 +570,9 @@ def draw_piechart(im):
 
         axesObject.axis('equal')
 
-        plotter.legend(patches[0], files, loc="best")
+        lgd = plotter.legend(patches[0], files, loc=(1,0.5))
 
-        plotter.savefig('chart.png', transparent=True)
+        plotter.savefig('chart.png', transparent=True, bbox_extra_artists=(lgd,), bbox_inches='tight')
         plotter.cla()
         plotter.close(figureObject)
 
@@ -582,21 +612,29 @@ def load_backup():
             json_data = json.load(server_data_file)
 
             time_table = json_data
-    except:
+    except Exception as e:
+        print(e)
         print("\n**BACKUP MODIFIED OR CORRUPTED**\n")
 
 
 # Backup all of the data
 def backup():
     with open("time_table.json", "w") as server_data_file:
-        json.dump(time_table, server_data_file)
+        json.dump(time_table, server_data_file, indent=4, sort_keys=True)
 
 
 def get_window(name):
+    global last_task_check
+    global task_table
     found = False
-    tasks = str(subprocess.check_output(['tasklist'])).split("\\r\\n")
+    
+    # Bottleneck found in get_window. Now storing subprocess output and only updating it every 30s
+    if (time.time() - last_task_check > 30):
+        last_task_check = time.time()
+        task_table = str(subprocess.check_output(['tasklist'])).split("\\r\\n")
+
     p = []
-    for task in tasks:
+    for task in task_table:
         m = re.match("(.+?) +(\d+) (.+?) +(\d+) +(\d+.* K).*",task)
         if m is not None:
             p.append(m.group(1))
@@ -607,7 +645,17 @@ def get_window(name):
     return found
 
 def get_focus():
-    focus = GetWindowText(GetForegroundWindow())
+    focus = win32gui.GetWindowText(win32gui.GetForegroundWindow())
+
+    # If the focus is empty, attempt to get the parent window's text. This accounts for a subwindow being in focus
+    if (focus == ""):
+        try:
+            focus = win32gui.GetWindowText( win32gui.GetParent(win32gui.GetForegroundWindow()) )
+        except:
+            focus = "no_window"
+
+    if (not initialize):
+        print(focus)
 
     if ("Visual Studio Code" in focus):
         focus = search("{} - Visual", focus)
@@ -617,12 +665,31 @@ def get_focus():
         focus = search("{} - Synfig Studio", focus)
         if (focus):
             focus = "ASSET: " + focus.fixed[0]
+    elif ("paint.net" in focus):
+        focus = search("{} - paint.net", focus)
+        if (focus):
+            if ("Untitled" not in focus.fixed[0]):
+                focus = "ASSET: " + focus.fixed[0]
     elif ("Unity" in focus and "Personal" in focus):
         focus = search("{} - {} -", focus)
         if (focus):
             focus = "PROJECT: " + focus.fixed[0]
+    elif ("Brave" in focus or "Chrome" in focus):
+        if ("Google Docs" in focus):
+            focus = search("{} - {} -", focus)
+            if (focus):
+                focus = "DESIGN: " + focus.fixed[0]
+        else:
+            focus = "Browsing"
     else:
         focus = "Other"
+
+    if isinstance(focus, str):
+        if (len(focus) > 50):
+            focus = "Other"
+    else:
+        focus = "Other"
+
     
     return focus
 
@@ -687,21 +754,30 @@ def exit_handler():
 atexit.register(exit_handler)
 
 if (initialize):
-    init()
+    if __name__ == "__main__":
+        init()
+
+        if (len(sys.argv) == 1):
+            try:
+                main()
+            except Exception:
+                with open("error_dump.json", "w") as error:
+                    error.write(traceback.format_exc())
+                    error.close()
+        else:
+            if (sys.argv[1] == "draw"):
+                draw_graph()
+            else:
+                print("Unrecognized command...")
+                var = input("'run' or exit")
+
+                if var == "run":
+                    main()
+                else:
+                    exit()
+    else:
+        with open("tooty.txt", "w") as test:
+            test.write("welp")
+            
 else:
     test()
-
-
-if (len(sys.argv) == 1):
-    main()
-else:
-    if (sys.argv[1] == "draw"):
-        draw_graph()
-    else:
-        print("Unrecognized command...")
-        var = input("'run' or exit")
-
-        if var == "run":
-            main()
-        else:
-            exit()
