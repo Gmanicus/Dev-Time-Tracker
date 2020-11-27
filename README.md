@@ -4,7 +4,7 @@ A time tracker &amp; grapher for us devs. It automatically logs the time we spen
 # Updates:
 
 November 27th, 2020 - Major Updates include:
-- Added numerous more colors to chart individual items. Colors are now consistent for individual labels across days of the month.
+- Added numerous more colors to chart individual items. Colors are now consistent for individual labels across days of the month and don't change based upon time logged.
 - Search the task list was causing a performance bottleneck, due to the fact that it was being requested every iteration. The data is now stored, referred to, and refreshed every 30s.
 - It should now be drawing the chart when the program is closed. This is a "nice to have" thing, and just keeps the chart up to date with what is in the file (theoretically, as it's been a while since I tested whether this was working as intended).
 - The program now checks for the __main__ namespace. This solved some issues with commandline functionality.
