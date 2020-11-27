@@ -12,6 +12,7 @@ November 27th, 2020 - Major Updates include:
 - Large improvement in window checks. Previously, subwindows would show a blank focus and be filed under "Other". It will now get the name of the parent window and be filed under the correct project properly.
 - Any time spent on a label without a color available will be overflowed into the "Other" segment. I seem to remember it not doing this previously, but I can't confirm as I didn't keep dev notes on this project.
 - The graph now shows hours on the legend, and has it offset so that it doesn't cover the pie chart. These are sorted most-least top-bottom.
+- +++ Plenty more that I have forgotten about by now.
 
 
 April 4th, 2020 - Major Updates include:
